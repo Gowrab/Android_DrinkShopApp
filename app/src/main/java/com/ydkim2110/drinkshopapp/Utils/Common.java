@@ -1,5 +1,6 @@
 package com.ydkim2110.drinkshopapp.Utils;
 
+import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.User;
 import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Retrofit.RetrofitClient;
@@ -19,5 +20,6 @@ public class Common {
     }
 
     public static User currentUser = null;
+    public static Category currentCategory = null;
 
 }

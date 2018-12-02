@@ -13,10 +13,10 @@ import com.ydkim2110.drinkshopapp.R;
  * Created by Kim Yongdae on 2018-12-02
  * email : ydkim2110@gmail.com
  */
-public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class DrinkViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public ImageView img_product;
-    public TextView txt_menu_name;
+    public TextView txt_drink_name, txt_price;
 
     IItemClickListener mIItemClickListener;
 
@@ -24,13 +24,14 @@ public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.
         mIItemClickListener = IItemClickListener;
     }
 
-    public CategoryViewHolder(@NonNull View itemView) {
+    public DrinkViewHolder(@NonNull View itemView) {
         super(itemView);
 
         img_product = itemView.findViewById(R.id.image_product);
-        txt_menu_name = itemView.findViewById(R.id.txt_menu_name);
+        txt_drink_name = itemView.findViewById(R.id.txt_drink_name);
+        txt_price = itemView.findViewById(R.id.txt_price);
 
-         itemView.setOnClickListener(this);
+        itemView.setOnClickListener(this);
     }
 
     @Override

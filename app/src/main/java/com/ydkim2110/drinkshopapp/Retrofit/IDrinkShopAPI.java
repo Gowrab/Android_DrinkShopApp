@@ -3,6 +3,7 @@ package com.ydkim2110.drinkshopapp.Retrofit;
 import com.ydkim2110.drinkshopapp.Model.Banner;
 import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.CheckUserResponse;
+import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.Model.User;
 
 import java.util.List;
@@ -32,6 +33,10 @@ public interface IDrinkShopAPI {
                                @Field("name") String name,
                                @Field("birthdate") String birthdate,
                                @Field("address") String address);
+
+    @FormUrlEncoded
+    @POST("getdrink.php")
+    Observable<List<Drink>> getDrink(@Field("menuid") String menuID);
 
     @FormUrlEncoded
     @POST("getuser.php")
