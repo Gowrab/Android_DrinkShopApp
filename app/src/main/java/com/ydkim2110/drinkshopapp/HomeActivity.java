@@ -3,6 +3,8 @@ package com.ydkim2110.drinkshopapp;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,7 +19,9 @@ import android.widget.TextView;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.ydkim2110.drinkshopapp.Adapter.CategoryAdapter;
 import com.ydkim2110.drinkshopapp.Model.Banner;
+import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Utils.Common;
 
@@ -40,6 +44,8 @@ public class HomeActivity extends AppCompatActivity
 
     private IDrinkShopAPI mService;
 
+    private RecyclerView lst_menu;
+
     // Rxjava
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -51,6 +57,11 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mService = Common.getAPI();
+
+        lst_menu = findViewById(R.id.lst_menu);
+        lst_menu.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.HORIZONTAL, false));
+        lst_menu.setHasFixedSize(true);
 
         mSliderLayout = findViewById(R.id.slider);
 
@@ -82,17 +93,38 @@ public class HomeActivity extends AppCompatActivity
 
         // get banner
         getBannerImage();
+
+        // get menu
+        getMenu();
     }
+
+    private void getMenu() {
+        mCompositeDisposable.add(mService.getMune()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<Category>>() {
+                    @Override
+                    public void accept(List<Category> categories) throws Exception {
+                       displayMenu(categories);
+                    }
+        }));
+    }
+
+    private void displayMenu(List<Category> categories) {
+        CategoryAdapter adapter = new CategoryAdapter(this, categories);
+        lst_menu.setAdapter(adapter);
+    }
+
 
     private void getBannerImage() {
         mCompositeDisposable.add(mService.getBanners()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Consumer<List<Banner>>() {
-            @Override
-            public void accept(List<Banner> banners) throws Exception {
-                displayImage(banners);
-            }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<Banner>>() {
+                    @Override
+                    public void accept(List<Banner> banners) throws Exception {
+                        displayImage(banners);
+                    }
         }));
     }
 

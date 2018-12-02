@@ -1,6 +1,7 @@
 package com.ydkim2110.drinkshopapp.Retrofit;
 
 import com.ydkim2110.drinkshopapp.Model.Banner;
+import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.CheckUserResponse;
 import com.ydkim2110.drinkshopapp.Model.User;
 
@@ -38,5 +39,8 @@ public interface IDrinkShopAPI {
 
     @GET("getbanner.php")
     Observable<List<Banner>> getBanners();
+
+    @GET("getmenu.php")
+    Observable<List<Category>> getMune();
 
 }
