@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.nex3z.notificationbadge.NotificationBadge;
 import com.ydkim2110.drinkshopapp.Adapter.CategoryAdapter;
 import com.ydkim2110.drinkshopapp.Database.DataSource.CartRepository;
 import com.ydkim2110.drinkshopapp.Database.Local.CartDataSource;
@@ -50,6 +51,8 @@ public class HomeActivity extends AppCompatActivity
     private IDrinkShopAPI mService;
 
     private RecyclerView lst_menu;
+
+    private NotificationBadge badge;
 
     // Rxjava
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
@@ -199,14 +202,32 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.menu_action_bar, menu);
+        View view = menu.findItem(R.id.cart_menu).getActionView();
+        badge = view.findViewById(R.id.badge);
+        updateCartCount();
         return true;
+    }
+
+    private void updateCartCount() {
+        if (badge == null) return;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (Common.cartRepository.countCartItems() == 0) {
+                    badge.setVisibility(View.INVISIBLE);
+                } else {
+                    badge.setVisibility(View.VISIBLE);
+                    badge.setText(String.valueOf(Common.cartRepository.countCartItems()));
+                }
+            }
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.cart_menu) {
             return true;
         }
 
@@ -236,5 +257,11 @@ public class HomeActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateCartCount();
     }
 }
