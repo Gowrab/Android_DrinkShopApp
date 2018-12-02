@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,6 +23,7 @@ import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.ydkim2110.drinkshopapp.Adapter.CategoryAdapter;
 import com.ydkim2110.drinkshopapp.Model.Banner;
 import com.ydkim2110.drinkshopapp.Model.Category;
+import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Utils.Common;
 
@@ -96,27 +98,46 @@ public class HomeActivity extends AppCompatActivity
 
         // get menu
         getMenu();
+        
+        // save newest topping list
+        getToppingList();
+    }
+
+    private void getToppingList() {
+        Log.d(TAG, "getToppingList: called");
+        mCompositeDisposable.add(mService.getDrink(Common.TOPPING_MENU_ID)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<Drink>>() {
+                    @Override
+                    public void accept(List<Drink> drinks) throws Exception {
+                        Common.toppingList = drinks;
+                    }
+        }));
     }
 
     private void getMenu() {
+        Log.d(TAG, "getMenu: called");
         mCompositeDisposable.add(mService.getMune()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<Category>>() {
                     @Override
                     public void accept(List<Category> categories) throws Exception {
-                       displayMenu(categories);
+                        displayMenu(categories);
                     }
         }));
     }
 
     private void displayMenu(List<Category> categories) {
+        Log.d(TAG, "displayMenu: called");
         CategoryAdapter adapter = new CategoryAdapter(this, categories);
         lst_menu.setAdapter(adapter);
     }
 
 
     private void getBannerImage() {
+        Log.d(TAG, "getBannerImage: called");
         mCompositeDisposable.add(mService.getBanners()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -130,6 +151,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     private void displayImage(List<Banner> banners) {
+        Log.d(TAG, "displayImage: called");
         HashMap<String, String> bannerMap = new HashMap<>();
         for (Banner item : banners) {
             bannerMap.put(item.getName(), item.getLink());

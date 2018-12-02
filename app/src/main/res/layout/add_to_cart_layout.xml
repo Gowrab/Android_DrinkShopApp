@@ -70,8 +70,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
 
             <!-- Group 1 Size of Cup -->
             <RelativeLayout
@@ -82,27 +82,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Choose Size"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:text="REQUIRED"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/white"
+                    android:background="@drawable/text_rounded_gray"
                     android:padding="4dp"
-                    android:background="@drawable/text_rounded_gray"/>
+                    android:text="REQUIRED"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:background="@android:color/white">
 
                 <RadioGroup
                     android:layout_width="wrap_content"
@@ -110,25 +110,25 @@
                     android:orientation="vertical">
 
                     <RadioButton
+                        android:id="@+id/rdi_sizeM"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/rdi_sizeM"
-                        android:text="Size M"/>
+                        android:text="Size M" />
 
                     <RadioButton
+                        android:id="@+id/rdi_sizeL"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/rdi_sizeL"
-                        android:text="Size L"/>
+                        android:text="Size L" />
 
                 </RadioGroup>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="8dp">
+                    android:layout_marginRight="8dp"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -157,27 +157,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Choose Sugar"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:text="REQUIRED"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/white"
+                    android:background="@drawable/text_rounded_gray"
                     android:padding="4dp"
-                    android:background="@drawable/text_rounded_gray"/>
+                    android:text="REQUIRED"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:background="@android:color/white">
 
                 <RadioGroup
                     android:layout_width="wrap_content"
@@ -185,41 +185,41 @@
                     android:orientation="vertical">
 
                     <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:id="@+id/rdi_sugar_100"
-                        android:text="100%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="100%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_sugar_70"
-                        android:text="70%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="70%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_sugar_50"
-                        android:text="50%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="50%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_sugar_30"
-                        android:text="30%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="30%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_sugar_free"
-                        android:text="Free"/>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Free" />
 
                 </RadioGroup>
 
             </RelativeLayout>
 
 
-            <!-- Group 2 Ice -->
+            <!-- Group 3 Ice -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -229,27 +229,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Choose Ice"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:text="REQUIRED"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/white"
+                    android:background="@drawable/text_rounded_gray"
                     android:padding="4dp"
-                    android:background="@drawable/text_rounded_gray"/>
+                    android:text="REQUIRED"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:background="@android:color/white">
 
                 <RadioGroup
                     android:layout_width="wrap_content"
@@ -257,39 +257,62 @@
                     android:orientation="vertical">
 
                     <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:id="@+id/rdi_ice_100"
-                        android:text="100%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="100%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_ice_70"
-                        android:text="70%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="70%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_ice_50"
-                        android:text="50%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="50%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_ice_30"
-                        android:text="30%"/>
-
-                    <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="30%" />
+
+                    <RadioButton
                         android:id="@+id/rdi_ice_free"
-                        android:text="Free"/>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Free" />
 
                 </RadioGroup>
 
             </RelativeLayout>
 
+            <!-- Group 4 Topping -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Topping"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycler_topping"
+                android:background="@android:color/white"
+                android:layout_marginTop="8dp">
+
+            </android.support.v7.widget.RecyclerView>
 
         </LinearLayout>
 
