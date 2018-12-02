@@ -1,5 +1,7 @@
 package com.ydkim2110.drinkshopapp.Utils;
 
+import com.ydkim2110.drinkshopapp.Database.DataSource.CartRepository;
+import com.ydkim2110.drinkshopapp.Database.Local.CartDatabase;
 import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.Model.User;
@@ -35,5 +37,9 @@ public class Common {
     public static int sizeOfCup = -1; // -1 : no choose (error), 0 : M, 1 : L
     public static int sugar = -1; // -1 : no choose (error)
     public static int ice = -1; //
+
+    // database
+    public static CartDatabase cartDatabase;
+    public static CartRepository cartRepository;
 
 }

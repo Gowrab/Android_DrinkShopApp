@@ -19,7 +19,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
+import com.ydkim2110.drinkshopapp.Database.ModelDB.Cart;
 import com.ydkim2110.drinkshopapp.Interface.IItemClickListener;
 import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.R;
@@ -222,14 +224,14 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkViewHolder> {
                     return;
                 }
 
-                showConfirmDialog(position, txt_count.getNumber(), Common.sizeOfCup, Common.sugar, Common.ice);
+                showConfirmDialog(position, txt_count.getNumber());
                 dialogInterface.dismiss();
             }
         });
         builder.show();
     }
 
-    private void showConfirmDialog(int position, String number, int sizeOfCup, int sugar, int ice) {
+    private void showConfirmDialog(int position, final String number) {
         Log.d(TAG, "showConfirmDialog: called");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -238,11 +240,11 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkViewHolder> {
 
         // View
         ImageView img_product_dialog = view.findViewById(R.id.img_product);
-        TextView txt_product_dialog = view.findViewById(R.id.txt_cart_product_name);
+        final TextView txt_product_dialog = view.findViewById(R.id.txt_cart_product_name);
         TextView txt_product_price = view.findViewById(R.id.txt_cart_product_price);
         TextView txt_sugar = view.findViewById(R.id.txt_sugar);
         TextView txt_ice = view.findViewById(R.id.txt_ice);
-        TextView txt_topping_extra = view.findViewById(R.id.txt_topping_extra);
+        final TextView txt_topping_extra = view.findViewById(R.id.txt_topping_extra);
 
         // set data
         Picasso.with(mContext)
@@ -276,12 +278,34 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkViewHolder> {
 
         txt_topping_extra.setText(topping_final_comment);
 
+        final double finalPrice = price;
         builder.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                // Add to SQLite
-                // Implement in next part
+
                 dialogInterface.dismiss();
+
+                try {
+                    // Add to SQLite
+                    // create new Cart item
+                    Cart cartItem = new Cart();
+                    cartItem.name = txt_product_dialog.getText().toString();
+                    cartItem.amount = Integer.parseInt(number);
+                    cartItem.ice = Common.ice;
+                    cartItem.sugar = Common.sugar;
+                    cartItem.price = finalPrice;
+                    cartItem.toppingExtras = txt_topping_extra.getText().toString();
+
+                    // Add to DB
+                    Common.cartRepository.insertToCart(cartItem);
+
+                    Log.d(TAG, "DEBUG: " + new Gson().toJson(cartItem));
+
+                    Toast.makeText(mContext, " 카트에 저장했습니다.", Toast.LENGTH_SHORT).show();
+                    // Implement in next part
+                } catch (Exception e) {
+                    Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
         builder.setView(view);
