@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.ydkim2110.drinkshopapp.Adapter.CartAdapter;
 import com.ydkim2110.drinkshopapp.Database.ModelDB.Cart;
@@ -72,5 +73,24 @@ public class CartActivity extends AppCompatActivity {
     protected void onStop() {
         mCompositeDisposable.clear();
         super.onStop();
+    }
+
+    // exist application when click back button
+    boolean isBackButtonClicked = false;
+
+    @Override
+    public void onBackPressed() {
+        if (isBackButtonClicked) {
+            super.onBackPressed();
+            return;
+        }
+        this.isBackButtonClicked = true;
+        Toast.makeText(this, "Please click Back again to exit", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isBackButtonClicked = false;
     }
 }

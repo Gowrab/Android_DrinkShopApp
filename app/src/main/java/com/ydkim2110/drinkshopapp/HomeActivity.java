@@ -1,6 +1,8 @@
 package com.ydkim2110.drinkshopapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import android.widget.Toast;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.facebook.accountkit.AccountKit;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.nex3z.notificationbadge.NotificationBadge;
 import com.squareup.picasso.Picasso;
@@ -298,13 +301,22 @@ public class HomeActivity extends AppCompatActivity
         super.onDestroy();
     }
 
+    // exist application when click back button
+    boolean isBackButtonClicked = false;
+
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        Log.d(TAG, "onBackPressed: called");
+        DrawerLayout drawer =  findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (isBackButtonClicked) {
+                super.onBackPressed();
+                return;
+            }
+            this.isBackButtonClicked = true;
+            Toast.makeText(this, "Please click Back again to exit", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -355,27 +367,39 @@ public class HomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_sign_out) {
+           // create confirm dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Exit Application");
+            builder.setMessage("Do you want to exit this application ?");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
 
-        } else if (id == R.id.nav_slideshow) {
+                    AccountKit.logOut();
 
-        } else if (id == R.id.nav_manage) {
+                    // clear all activity
+                    Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
 
-        } else if (id == R.id.nav_share) {
+                    dialogInterface.dismiss();
+                }
+            });
 
-        } else if (id == R.id.nav_send) {
-
+            builder.setNegativeButton("CANCEL", null);
+            builder.show();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     @Override
     protected void onResume() {
+        isBackButtonClicked = false;
         super.onResume();
         updateCartCount();
     }
