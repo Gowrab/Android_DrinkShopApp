@@ -9,11 +9,14 @@ import com.ydkim2110.drinkshopapp.Model.User;
 import java.util.List;
 
 import io.reactivex.Observable;
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 
 /**
  * Created by Kim Yongdae on 2018-11-30
@@ -47,5 +50,9 @@ public interface IDrinkShopAPI {
 
     @GET("getmenu.php")
     Observable<List<Category>> getMune();
+
+    @Multipart
+    @POST("upload.php")
+    Call<String> uploadFile(@Part MultipartBody.Part phone, @Part MultipartBody.Part file);
 
 }

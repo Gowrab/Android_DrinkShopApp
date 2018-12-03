@@ -1,11 +1,15 @@
 package com.ydkim2110.drinkshopapp;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,11 +22,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.nex3z.notificationbadge.NotificationBadge;
+import com.squareup.picasso.Picasso;
 import com.ydkim2110.drinkshopapp.Adapter.CategoryAdapter;
 import com.ydkim2110.drinkshopapp.Database.DataSource.CartRepository;
 import com.ydkim2110.drinkshopapp.Database.Local.CartDataSource;
@@ -32,19 +39,28 @@ import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Utils.Common;
+import com.ydkim2110.drinkshopapp.Utils.ProgressRequestBody;
+import com.ydkim2110.drinkshopapp.Utils.UploadCallBack;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MultipartBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, UploadCallBack {
 
     private static final String TAG = "HomeActivity";
+    private static final int PICK_FILE_REQUEST = 1222;
 
     private TextView txt_name, txt_phone;
 
@@ -57,6 +73,9 @@ public class HomeActivity extends AppCompatActivity
     private NotificationBadge badge;
     private ImageView cart_icon;
 
+    private CircleImageView img_avatar;
+    private Uri selectedFileUri;
+
     // Rxjava
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
@@ -64,7 +83,9 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Log.d(TAG, "onCreate: started");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mService = Common.getAPI();
@@ -76,7 +97,7 @@ public class HomeActivity extends AppCompatActivity
 
         mSliderLayout = findViewById(R.id.slider);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,22 +106,40 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View headerView = navigationView.getHeaderView(0);
         txt_name = headerView.findViewById(R.id.txt_name);
         txt_phone = headerView.findViewById(R.id.txt_phone);
+        img_avatar = headerView.findViewById(R.id.img_avatar);
+
+        // Event
+        img_avatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
 
         // set info
         txt_name.setText(Common.currentUser.getName());
         txt_phone.setText(Common.currentUser.getPhone());
+
+        // set avatar
+        if (!TextUtils.isEmpty(Common.currentUser.getAvatarUrl())) {
+            Picasso.with(this)
+                    .load(new StringBuilder(Common.BASE_URL)
+                        .append("user_avatar/")
+                        .append(Common.currentUser.getAvatarUrl()).toString())
+                    .into(img_avatar);
+        }
 
         // get banner
         getBannerImage();
@@ -113,6 +152,72 @@ public class HomeActivity extends AppCompatActivity
 
         // init database
         initDB();
+    }
+
+    private void chooseImage() {
+        Log.d(TAG, "chooseImage: called");
+        startActivityForResult(Intent.createChooser(FileUtils.createGetContentIntent(),
+                "Select a file"),
+                PICK_FILE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == PICK_FILE_REQUEST) {
+                if (data != null) {
+                    selectedFileUri = data.getData();
+                    if (selectedFileUri != null && !selectedFileUri.getPath().isEmpty()) {
+                        img_avatar.setImageURI(selectedFileUri);
+                        uploadFile();
+                    }
+                    else {
+                        Toast.makeText(this, "Cannot upload file to server", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }
+    }
+
+    private void uploadFile() {
+        Log.d(TAG, "uploadFile: called");
+        if (selectedFileUri != null) {
+            File file = FileUtils.getFile(this, selectedFileUri);
+
+            String fileName = new StringBuilder(Common.currentUser.getPhone())
+                    .append(FileUtils.getExtension(file.toString()))
+                    .toString();
+
+            ProgressRequestBody requestFile = new ProgressRequestBody(file, this);
+
+            Log.d(TAG, "uploadFile: fileName: " + fileName);
+            Log.d(TAG, "uploadFile: requestFile: " + requestFile);
+
+            final MultipartBody.Part body = MultipartBody.Part
+                    .createFormData("uploaded_file", fileName, requestFile);
+
+            final MultipartBody.Part userPhone = MultipartBody.Part
+                    .createFormData("phone", Common.currentUser.getPhone());
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    mService.uploadFile(userPhone, body)
+                            .enqueue(new Callback<String>() {
+                                @Override
+                                public void onResponse(Call<String> call, Response<String> response) {
+                                    Toast.makeText(HomeActivity.this, response.body(), Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailure(Call<String> call, Throwable t) {
+                                    Toast.makeText(HomeActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }).start();
+        }
     }
 
     private void initDB() {
@@ -273,5 +378,10 @@ public class HomeActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         updateCartCount();
+    }
+
+    @Override
+    public void onProgressUpdate(int percentage) {
+
     }
 }

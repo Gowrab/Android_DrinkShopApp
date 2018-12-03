@@ -42,7 +42,8 @@
                     android:layout_height="30dp"
                     android:id="@+id/txt_count"
                     android:layout_alignParentRight="true"
-                    app:backGroundColor="@color/colorAccent" />
+                    app:backGroundColor="@color/colorAccent"
+                    app:initialNumber="1"/>
 
             </RelativeLayout>
 
