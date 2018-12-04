@@ -35,8 +35,10 @@ import com.nex3z.notificationbadge.NotificationBadge;
 import com.squareup.picasso.Picasso;
 import com.ydkim2110.drinkshopapp.Adapter.CategoryAdapter;
 import com.ydkim2110.drinkshopapp.Database.DataSource.CartRepository;
+import com.ydkim2110.drinkshopapp.Database.DataSource.FavoriteRepository;
 import com.ydkim2110.drinkshopapp.Database.Local.CartDataSource;
-import com.ydkim2110.drinkshopapp.Database.Local.CartDatabase;
+import com.ydkim2110.drinkshopapp.Database.Local.FavoriteDataSource;
+import com.ydkim2110.drinkshopapp.Database.Local.YDKIMRoomDatabase;
 import com.ydkim2110.drinkshopapp.Model.Banner;
 import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.Drink;
@@ -226,9 +228,11 @@ public class HomeActivity extends AppCompatActivity
     private void initDB() {
         Log.d(TAG, "initDB: called");
 
-        Common.cartDatabase = CartDatabase.getInstance(this);
+        Common.ydkimRoomDatabase = YDKIMRoomDatabase.getInstance(this);
         Common.cartRepository = CartRepository.getInstance(
-                CartDataSource.getInstance(Common.cartDatabase.cartDAO()));
+                CartDataSource.getInstance(Common.ydkimRoomDatabase.cartDAO()));
+        Common.favoriteRepository = FavoriteRepository.getInstance(
+                FavoriteDataSource.getInstance(Common.ydkimRoomDatabase.favoriteDAO()));
     }
 
     private void getToppingList() {

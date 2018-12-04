@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                                                     // If user already exists, just start new activity
                                                     alertDialog.dismiss();
                                                     startActivity(new Intent(MainActivity.this, HomeActivity.class));
-                                                    finish(); // close mainactivity
+                                                    finish(); // close main activity
                                                 }
 
                                                 @Override

@@ -1,7 +1,8 @@
 package com.ydkim2110.drinkshopapp.Utils;
 
 import com.ydkim2110.drinkshopapp.Database.DataSource.CartRepository;
-import com.ydkim2110.drinkshopapp.Database.Local.CartDatabase;
+import com.ydkim2110.drinkshopapp.Database.DataSource.FavoriteRepository;
+import com.ydkim2110.drinkshopapp.Database.Local.YDKIMRoomDatabase;
 import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.Model.User;
@@ -30,7 +31,7 @@ public class Common {
     public static Category currentCategory = null;
     public static List<Drink> toppingList = new ArrayList<>();
 
-    public static double toppingPice = 0.0;
+    public static double toppingPrice = 0.0;
     public static List<String> toppingAdded = new ArrayList<>();
 
     // hold field
@@ -39,7 +40,8 @@ public class Common {
     public static int ice = -1; //
 
     // database
-    public static CartDatabase cartDatabase;
+    public static YDKIMRoomDatabase ydkimRoomDatabase;
     public static CartRepository cartRepository;
+    public static FavoriteRepository favoriteRepository;
 
 }

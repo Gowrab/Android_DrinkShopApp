@@ -17,7 +17,6 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -263,7 +262,7 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkViewHolder> {
                 .append("%").toString());
 
         double price = (Double.parseDouble(mDrinkList.get(position).Price) * Double.parseDouble(number))
-                + Common.toppingPice;
+                + Common.toppingPrice;
 
         if (Common.sizeOfCup == 1) {
             price += 3.0;

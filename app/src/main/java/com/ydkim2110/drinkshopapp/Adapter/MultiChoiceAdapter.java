@@ -50,11 +50,11 @@ public class MultiChoiceAdapter extends RecyclerView.Adapter<MultiChoiceAdapter.
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     Common.toppingAdded.add(compoundButton.getText().toString());
-                    Common.toppingPice += Double.parseDouble(mOptionList.get(position).Price);
+                    Common.toppingPrice += Double.parseDouble(mOptionList.get(position).Price);
                 }
                 else {
                     Common.toppingAdded.add(compoundButton.getText().toString());
-                    Common.toppingPice -= Double.parseDouble(mOptionList.get(position).Price);
+                    Common.toppingPrice -= Double.parseDouble(mOptionList.get(position).Price);
                 }
             }
         });
