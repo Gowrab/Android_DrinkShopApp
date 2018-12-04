@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -64,12 +66,30 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
         private ImageView img_product;
         private TextView txt_product_name, txt_price;
 
+        public RelativeLayout view_background;
+        public LinearLayout view_foreground;
+
         public FavoriteViewHolder(@NonNull View itemView) {
             super(itemView);
 
             img_product = itemView.findViewById(R.id.img_product);
             txt_product_name = itemView.findViewById(R.id.txt_product_name);
             txt_price = itemView.findViewById(R.id.txt_price);
+            view_background = itemView.findViewById(R.id.view_background);
+            view_foreground = itemView.findViewById(R.id.view_foreground);
+
         }
+    }
+
+    public void removeItem(int position) {
+        Log.d(TAG, "removeItem: called");
+        mFavoriteList.remove(position);
+        notifyItemChanged(position);
+    }
+
+    public void restoreItem(Favorite item, int positon) {
+        Log.d(TAG, "restoreItem: called");
+        mFavoriteList.add(positon, item);
+        notifyItemInserted(positon);
     }
 }
