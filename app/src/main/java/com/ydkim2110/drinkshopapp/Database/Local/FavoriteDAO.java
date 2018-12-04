@@ -1,6 +1,8 @@
 package com.ydkim2110.drinkshopapp.Database.Local;
 
+import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
+import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import com.ydkim2110.drinkshopapp.Database.ModelDB.Favorite;
@@ -13,6 +15,7 @@ import io.reactivex.Flowable;
  * Created by Kim Yongdae on 2018-12-04
  * email : ydkim2110@gmail.com
  */
+@Dao
 public interface FavoriteDAO {
 
     @Query("SELECT * FROM Favorite")
@@ -20,6 +23,9 @@ public interface FavoriteDAO {
 
     @Query("SELECT EXISTS (SELECT 1 FROM Favorite WHERE id=:itemId)")
     int isFavorite(int itemId);
+
+    @Insert
+    void insertFav(Favorite...favorites);
 
     @Delete
     void delete(Favorite favorite);

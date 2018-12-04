@@ -70,22 +70,8 @@ public class DrinkActivity extends AppCompatActivity {
         lst_drink.setAdapter(adapter);
     }
 
-    // exist application when click back button
-    boolean isBackButtonClicked = false;
-
-    @Override
-    public void onBackPressed() {
-        if (isBackButtonClicked) {
-            super.onBackPressed();
-            return;
-        }
-        this.isBackButtonClicked = true;
-        Toast.makeText(this, "Please click Back again to exit", Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        isBackButtonClicked = false;
     }
 }
