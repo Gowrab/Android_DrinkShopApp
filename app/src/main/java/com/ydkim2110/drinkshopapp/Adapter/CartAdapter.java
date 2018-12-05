@@ -8,11 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.squareup.picasso.Picasso;
 import com.ydkim2110.drinkshopapp.Database.ModelDB.Cart;
+import com.ydkim2110.drinkshopapp.Database.ModelDB.Favorite;
 import com.ydkim2110.drinkshopapp.R;
 import com.ydkim2110.drinkshopapp.Utils.Common;
 
@@ -83,6 +86,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         private TextView txt_product_name, txt_sugar_ice, txt_price;
         private ElegantNumberButton txt_amount;
 
+        public RelativeLayout view_background;
+        public LinearLayout view_foreground;
+
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -91,7 +97,22 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             txt_sugar_ice = itemView.findViewById(R.id.txt_sugar_ice);
             txt_price = itemView.findViewById(R.id.txt_price);
             txt_amount = itemView.findViewById(R.id.txt_amount);
+            view_background = itemView.findViewById(R.id.view_background);
+            view_foreground = itemView.findViewById(R.id.view_foreground);
+
         }
+    }
+
+    public void removeItem(int position) {
+        Log.d(TAG, "removeItem: called");
+        mCartList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem(Cart item, int position) {
+        Log.d(TAG, "restoreItem: called");
+        mCartList.add(position, item);
+        notifyItemInserted(position);
     }
 
 }

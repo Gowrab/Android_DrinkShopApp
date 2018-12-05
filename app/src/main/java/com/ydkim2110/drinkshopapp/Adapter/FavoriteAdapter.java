@@ -84,12 +84,12 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
     public void removeItem(int position) {
         Log.d(TAG, "removeItem: called");
         mFavoriteList.remove(position);
-        notifyItemChanged(position);
+        notifyItemRemoved(position);
     }
 
-    public void restoreItem(Favorite item, int positon) {
+    public void restoreItem(Favorite item, int position) {
         Log.d(TAG, "restoreItem: called");
-        mFavoriteList.add(positon, item);
-        notifyItemInserted(positon);
+        mFavoriteList.add(position, item);
+        notifyItemInserted(position);
     }
 }
