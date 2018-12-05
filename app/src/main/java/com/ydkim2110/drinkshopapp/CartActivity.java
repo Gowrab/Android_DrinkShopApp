@@ -1,5 +1,7 @@
 package com.ydkim2110.drinkshopapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -7,16 +9,23 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.ydkim2110.drinkshopapp.Adapter.CartAdapter;
 import com.ydkim2110.drinkshopapp.Adapter.FavoriteAdapter;
 import com.ydkim2110.drinkshopapp.Database.ModelDB.Cart;
 import com.ydkim2110.drinkshopapp.Database.ModelDB.Favorite;
+import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Utils.Common;
 import com.ydkim2110.drinkshopapp.Utils.RecyclerITemTouchHelper;
 import com.ydkim2110.drinkshopapp.Utils.RecyclerItemTouchHelperListener;
@@ -28,6 +37,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartActivity extends AppCompatActivity implements RecyclerItemTouchHelperListener {
 
@@ -40,6 +52,8 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     private List<Cart> mCartList = new ArrayList<>();
     private RelativeLayout mRootLayout;
 
+    private IDrinkShopAPI mService;
+
     private CompositeDisposable mCompositeDisposable;
 
     @Override
@@ -48,6 +62,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         setContentView(R.layout.activity_cart);
         Log.d(TAG, "onCreate: started");
 
+        mService = Common.getAPI();
         mCompositeDisposable = new CompositeDisposable();
 
         recycler_cart = findViewById(R.id.recycler_cart);
@@ -59,10 +74,114 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(recycler_cart);
 
         btn_place_order = findViewById(R.id.btn_place_order);
+        btn_place_order.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                placeOrder();
+            }
+        });
 
         mRootLayout = findViewById(R.id.rootLayout);
 
         loadCartItems();
+    }
+
+    private void placeOrder() {
+        Log.d(TAG, "placeOrder: called");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Submit Order");
+
+
+        View submitOrderView = LayoutInflater.from(this).inflate(R.layout.submit_order_layout, null);
+
+        final EditText mComment = submitOrderView.findViewById(R.id.edt_comment);
+        final EditText mOtherAddress = submitOrderView.findViewById(R.id.edt_other_address);
+
+        final RadioButton mRadioUserAddress = submitOrderView.findViewById(R.id.rdi_user_address);
+        final RadioButton mRadioOtherAddress = submitOrderView.findViewById(R.id.rdi_other_address);
+
+        // event
+        mRadioUserAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    Log.d(TAG, "onCheckedChanged: Checked");
+                    mOtherAddress.setEnabled(false);
+                }
+            }
+        });
+
+        mRadioOtherAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    mOtherAddress.setEnabled(true);
+                }
+            }
+        });
+
+        builder.setView(submitOrderView);
+        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton("SUBMIT", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                final String orderComment = mComment.getText().toString();
+                final String orderAddress;
+                if (mRadioUserAddress.isChecked()) {
+                    orderAddress = Common.currentUser.getAddress();
+                } else if (mRadioOtherAddress.isChecked()) {
+                    orderAddress = mOtherAddress.getText().toString();
+                } else {
+                    orderAddress = "";
+                }
+
+                // submit order
+                mCompositeDisposable.add(Common.cartRepository.getCartItems()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(new Consumer<List<Cart>>() {
+                        @Override
+                        public void accept(List<Cart> carts) throws Exception {
+                            if (!TextUtils.isEmpty(orderAddress)) {
+                                sendOrderToServer(Common.cartRepository.sumPrice(), carts,
+                                        orderComment, orderAddress);
+                            }
+                            else {
+                                Toast.makeText(CartActivity.this, "Order Address Can't null", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }));
+            }
+        });
+        builder.show();
+    }
+
+    private void sendOrderToServer(float subPrice, List<Cart> carts, String orderComment, String orderAddress) {
+        Log.d(TAG, "sendOrderToServer: called");
+
+        if (carts.size() > 0) {
+            String orderDetail = new Gson().toJson(carts);
+            mService.submitOrder(subPrice, orderDetail, orderComment, orderAddress, Common.currentUser.getPhone())
+            .enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Toast.makeText(CartActivity.this, "Order submit", Toast.LENGTH_SHORT).show();
+                    // Clear cart
+                    Common.cartRepository.emptyCart();
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e(TAG, "onFailure: Error" + t.getMessage());
+                }
+            });
+        }
     }
 
     private void loadCartItems() {

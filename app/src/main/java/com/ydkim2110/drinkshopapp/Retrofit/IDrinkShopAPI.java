@@ -25,8 +25,6 @@ import retrofit2.http.Part;
 public interface IDrinkShopAPI {
 
     @FormUrlEncoded
-
-
     @POST("checkuser.php")
     Call<CheckUserResponse> checkUserExists(@Field("phone") String phone);
 
@@ -57,4 +55,12 @@ public interface IDrinkShopAPI {
 
     @GET("getalldrinks.php")
     Observable<List<Drink>> getAllDrinks();
+
+    @FormUrlEncoded
+    @POST("submitorder.php")
+    Call<String> submitOrder(@Field("price") float orderPrice,
+                             @Field("orderDetail") String orderDetail,
+                             @Field("comment") String comment,
+                             @Field("address") String address,
+                             @Field("phone") String phone);
 }

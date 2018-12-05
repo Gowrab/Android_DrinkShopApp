@@ -46,7 +46,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CartViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final CartViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called");
 
         Picasso.with(mContext)
@@ -54,7 +54,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 .into(holder.img_product);
         holder.txt_amount.setNumber(String.valueOf(mCartList.get(position).amount));
         holder.txt_price.setText(new StringBuilder("$").append(mCartList.get(position).price));
-        holder.txt_product_name.setText(mCartList.get(position).name);
+        holder.txt_product_name.setText(new StringBuilder(mCartList.get(position).name)
+            .append(" x")
+            .append(mCartList.get(position).amount)
+            .append(mCartList.get(position).size == 0 ? " Size M" : "Size L"));
         holder.txt_sugar_ice.setText(new StringBuilder("Sugar: ")
             .append(mCartList.get(position).sugar)
             .append("%")
@@ -63,14 +66,21 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             .append(mCartList.get(position).ice)
             .append("%").toString());
 
+        // Get Price of one cup with all options
+        final double priceOneCup = mCartList.get(position).price / mCartList.get(position).amount;
+
         // Auto save item when user change amount
         holder.txt_amount.setOnValueChangeListener(new ElegantNumberButton.OnValueChangeListener() {
             @Override
             public void onValueChange(ElegantNumberButton view, int oldValue, int newValue) {
                 Cart cart = mCartList.get(position);
                 cart.amount = newValue;
+                cart.price = Math.round(priceOneCup*newValue);
 
                 Common.cartRepository.updateCart(cart);
+
+                holder.txt_price.setText(new StringBuilder("$")
+                    .append(mCartList.get(position).price));
             }
         });
     }
