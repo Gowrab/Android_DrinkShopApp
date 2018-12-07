@@ -29,7 +29,10 @@ import android.widget.Toast;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
+import com.facebook.accountkit.AccountKitCallback;
+import com.facebook.accountkit.AccountKitError;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.nex3z.notificationbadge.NotificationBadge;
 import com.squareup.picasso.Picasso;
@@ -41,7 +44,9 @@ import com.ydkim2110.drinkshopapp.Database.Local.FavoriteDataSource;
 import com.ydkim2110.drinkshopapp.Database.Local.YDKIMRoomDatabase;
 import com.ydkim2110.drinkshopapp.Model.Banner;
 import com.ydkim2110.drinkshopapp.Model.Category;
+import com.ydkim2110.drinkshopapp.Model.CheckUserResponse;
 import com.ydkim2110.drinkshopapp.Model.Drink;
+import com.ydkim2110.drinkshopapp.Model.User;
 import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Utils.Common;
 import com.ydkim2110.drinkshopapp.Utils.ProgressRequestBody;
@@ -52,6 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import dmax.dialog.SpotsDialog;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
@@ -133,17 +139,21 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        // set info
-        txt_name.setText(Common.currentUser.getName());
-        txt_phone.setText(Common.currentUser.getPhone());
+        if (Common.currentUser != null) {
 
-        // set avatar
-        if (!TextUtils.isEmpty(Common.currentUser.getAvatarUrl())) {
-            Picasso.with(this)
-                    .load(new StringBuilder(Common.BASE_URL)
-                        .append("user_avatar/")
-                        .append(Common.currentUser.getAvatarUrl()).toString())
-                    .into(img_avatar);
+            // set info
+            txt_name.setText(Common.currentUser.getName());
+            txt_phone.setText(Common.currentUser.getPhone());
+
+            // set avatar
+            if (!TextUtils.isEmpty(Common.currentUser.getAvatarUrl())) {
+                Picasso.with(this)
+                        .load(new StringBuilder(Common.BASE_URL)
+                                .append("user_avatar/")
+                                .append(Common.currentUser.getAvatarUrl()).toString())
+                        .into(img_avatar);
+            }
+
         }
 
         // get banner
@@ -157,6 +167,67 @@ public class HomeActivity extends AppCompatActivity
 
         // init database
         initDB();
+
+        checkSessionLogin(); // if user already logged, just login again (Session still live)
+    }
+
+    private void checkSessionLogin() {
+        Log.d(TAG, "checkSessionLogin: called");
+
+        if (AccountKit.getCurrentAccessToken() != null) {
+            final AlertDialog dialog = new SpotsDialog.Builder().setContext(HomeActivity.this).build();
+            dialog.setMessage("잠시만 기다려 주세요...");
+            dialog.show();
+
+            // check exists user on Server (MYSQL)
+            AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+                @Override
+                public void onSuccess(final Account account) {
+                    mService.checkUserExists(account.getPhoneNumber().toString())
+                            .enqueue(new Callback<CheckUserResponse>() {
+                                @Override
+                                public void onResponse(Call<CheckUserResponse> call, Response<CheckUserResponse> response) {
+                                    CheckUserResponse userResponse = response.body();
+
+                                    if (userResponse.isExists()) {
+                                        // Request Information of current user
+                                        mService.getUserInformation(account.getPhoneNumber().toString())
+                                                .enqueue(new Callback<User>() {
+                                                    @Override
+                                                    public void onResponse(Call<User> call, Response<User> response) {
+                                                        Common.currentUser = response.body();
+                                                        if (Common.currentUser != null) {
+                                                            dialog.dismiss();
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(Call<User> call, Throwable t) {
+                                                        dialog.dismiss();
+                                                        Log.e(TAG, "onFailure: "+t.getMessage());
+                                                    }
+                                                });
+                                    }
+                                    else {
+                                        // if user not exists on Database, just make login
+                                        startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                                        finish();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<CheckUserResponse> call, Throwable t) {
+                                    Log.e(TAG, "onFailure: "+t.getMessage());
+                                }
+                            });
+                }
+
+                @Override
+                public void onError(AccountKitError accountKitError) {
+                    Log.e(TAG, "onFailure: "+accountKitError.getErrorType());
+                }
+            });
+        }
     }
 
     private void chooseImage() {

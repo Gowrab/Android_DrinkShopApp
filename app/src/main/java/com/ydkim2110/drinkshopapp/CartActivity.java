@@ -138,64 +138,88 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
     private void placeOrder() {
         Log.d(TAG, "placeOrder: called");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Submit Order");
+        if (Common.currentUser != null) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Submit Order");
 
 
-        View submitOrderView = LayoutInflater.from(this).inflate(R.layout.submit_order_layout, null);
+            View submitOrderView = LayoutInflater.from(this).inflate(R.layout.submit_order_layout, null);
 
-        final EditText mComment = submitOrderView.findViewById(R.id.edt_comment);
-        final EditText mOtherAddress = submitOrderView.findViewById(R.id.edt_other_address);
+            final EditText mComment = submitOrderView.findViewById(R.id.edt_comment);
+            final EditText mOtherAddress = submitOrderView.findViewById(R.id.edt_other_address);
 
-        final RadioButton mRadioUserAddress = submitOrderView.findViewById(R.id.rdi_user_address);
-        final RadioButton mRadioOtherAddress = submitOrderView.findViewById(R.id.rdi_other_address);
+            final RadioButton mRadioUserAddress = submitOrderView.findViewById(R.id.rdi_user_address);
+            final RadioButton mRadioOtherAddress = submitOrderView.findViewById(R.id.rdi_other_address);
 
-        // event
-        mRadioUserAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    Log.d(TAG, "onCheckedChanged: Checked");
-                    mOtherAddress.setEnabled(false);
+            // event
+            mRadioUserAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if (isChecked) {
+                        Log.d(TAG, "onCheckedChanged: Checked");
+                        mOtherAddress.setEnabled(false);
+                    }
                 }
-            }
-        });
+            });
 
-        mRadioOtherAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    mOtherAddress.setEnabled(true);
+            mRadioOtherAddress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if (isChecked) {
+                        mOtherAddress.setEnabled(true);
+                    }
                 }
-            }
-        });
+            });
 
-        builder.setView(submitOrderView);
-        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setPositiveButton("SUBMIT", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                orderComment = mComment.getText().toString();
-                if (mRadioUserAddress.isChecked()) {
-                    orderAddress = Common.currentUser.getAddress();
-                } else if (mRadioOtherAddress.isChecked()) {
-                    orderAddress = mOtherAddress.getText().toString();
-                } else {
-                    orderAddress = "";
+            builder.setView(submitOrderView);
+            builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
                 }
+            });
+            builder.setPositiveButton("SUBMIT", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    orderComment = mComment.getText().toString();
+                    if (mRadioUserAddress.isChecked()) {
+                        orderAddress = Common.currentUser.getAddress();
+                    } else if (mRadioOtherAddress.isChecked()) {
+                        orderAddress = mOtherAddress.getText().toString();
+                    } else {
+                        orderAddress = "";
+                    }
 
-                // Payment
-                DropInRequest dropInRequest = new DropInRequest().clientToken(token);
-                startActivityForResult(dropInRequest.getIntent(CartActivity.this), PAYMENT_REQUEST_CODE);
+                    // Payment
+                    DropInRequest dropInRequest = new DropInRequest().clientToken(token);
+                    startActivityForResult(dropInRequest.getIntent(CartActivity.this), PAYMENT_REQUEST_CODE);
 
-            }
-        });
-        builder.show();
+                }
+            });
+            builder.show();
+        }
+        else {
+            // require login
+            AlertDialog.Builder builder = new AlertDialog.Builder(CartActivity.this);
+            builder.setTitle("Not Login?")
+                .setMessage("Please login or register account to submit order")
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        startActivity(new Intent(CartActivity.this, MainActivity.class));
+                        finish();
+                    }
+                })
+                .show();
+        }
     }
 
     @Override
@@ -282,6 +306,7 @@ public class CartActivity extends AppCompatActivity implements RecyclerItemTouch
                     Toast.makeText(CartActivity.this, "Order submit", Toast.LENGTH_SHORT).show();
                     // Clear cart
                     Common.cartRepository.emptyCart();
+                    finish();
                 }
 
                 @Override
