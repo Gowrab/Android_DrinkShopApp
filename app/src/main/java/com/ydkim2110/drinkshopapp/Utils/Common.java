@@ -8,6 +8,7 @@ import com.ydkim2110.drinkshopapp.Model.Drink;
 import com.ydkim2110.drinkshopapp.Model.User;
 import com.ydkim2110.drinkshopapp.Retrofit.IDrinkShopAPI;
 import com.ydkim2110.drinkshopapp.Retrofit.RetrofitClient;
+import com.ydkim2110.drinkshopapp.Retrofit.RetrofitScalarsClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +22,8 @@ public class Common {
     private static final String TAG = "Common";
 
     public static final String BASE_URL = "http://192.168.0.13/drinkshop/";
+    public static final String API_TOKEN_URL = "http://192.168.0.13/drinkshop/braintree/main.php";
     public static final String TOPPING_MENU_ID = "7";
-
-    public static IDrinkShopAPI getAPI() {
-        return RetrofitClient.getClient(BASE_URL).create(IDrinkShopAPI.class);
-    }
 
     public static User currentUser = null;
     public static Category currentCategory = null;
@@ -43,5 +41,13 @@ public class Common {
     public static YDKIMRoomDatabase ydkimRoomDatabase;
     public static CartRepository cartRepository;
     public static FavoriteRepository favoriteRepository;
+
+    public static IDrinkShopAPI getAPI() {
+        return RetrofitClient.getClient(BASE_URL).create(IDrinkShopAPI.class);
+    }
+
+    public static IDrinkShopAPI getScalarsAPI() {
+        return RetrofitScalarsClient.getScalarsClient(BASE_URL).create(IDrinkShopAPI.class);
+    }
 
 }
