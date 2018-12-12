@@ -4,6 +4,7 @@ import com.ydkim2110.drinkshopapp.Model.Banner;
 import com.ydkim2110.drinkshopapp.Model.Category;
 import com.ydkim2110.drinkshopapp.Model.CheckUserResponse;
 import com.ydkim2110.drinkshopapp.Model.Drink;
+import com.ydkim2110.drinkshopapp.Model.Order;
 import com.ydkim2110.drinkshopapp.Model.User;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public interface IDrinkShopAPI {
     Observable<List<Banner>> getBanners();
 
     @GET("getmenu.php")
-    Observable<List<Category>> getMune();
+    Observable<List<Category>> getMenu();
 
     @Multipart
     @POST("upload.php")
@@ -68,4 +69,9 @@ public interface IDrinkShopAPI {
     @POST("braintree/checkout.php")
     Call<String> payment(@Field("nonce") String nonce,
                             @Field("amount") String amount);
+
+    @FormUrlEncoded
+    @POST("getorder.php")
+    Observable<List<Order>> getOrder(@Field("userPhone") String userPhone,
+                                    @Field("status") String status);
 }

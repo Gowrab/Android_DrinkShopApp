@@ -321,7 +321,7 @@ public class HomeActivity extends AppCompatActivity
 
     private void getMenu() {
         Log.d(TAG, "getMenu: called");
-        mCompositeDisposable.add(mService.getMune()
+        mCompositeDisposable.add(mService.getMenu()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<Category>>() {
@@ -472,6 +472,9 @@ public class HomeActivity extends AppCompatActivity
         }
         else if (id == R.id.nav_favorite) {
             startActivity(new Intent(HomeActivity.this, FavoriteListActivity.class));
+        }
+        else if (id == R.id.nav_show_orders) {
+            startActivity(new Intent(HomeActivity.this, ShowOrderActivity.class));
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
